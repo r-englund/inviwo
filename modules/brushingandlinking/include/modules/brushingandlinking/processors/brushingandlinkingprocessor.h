@@ -34,6 +34,7 @@
 #include <inviwo/core/ports/imageport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <inviwo/core/properties/compositeproperty.h>
 #include <modules/brushingandlinking/brushingandlinkingmanager.h>
 #include <modules/brushingandlinking/brushingandlinkingmoduledefine.h>
 #include <modules/brushingandlinking/ports/brushingandlinkingports.h>
@@ -69,9 +70,15 @@ public:
 
     BrushingAndLinkingOutport& getOutport() { return outport_; }
 
+
 private:
     BrushingAndLinkingOutport outport_;
+    IntSizeTProperty numberOfSelectedIndices_;
+    IntSizeTProperty numberOfFilterdIndices_;
+    IntSizeTProperty numberOfHoveredIndices_;
+    CompositeProperty sources_;
     std::shared_ptr<BrushingAndLinkingManager> manager_;
+
 };
 
 }  // namespace inviwo
