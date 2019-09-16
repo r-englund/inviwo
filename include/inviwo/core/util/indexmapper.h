@@ -34,10 +34,9 @@
 #include <inviwo/core/common/inviwo.h>
 #include <algorithm>
 #include <numeric>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <array>
 #include <inviwo/core/util/glm.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace inviwo {
 namespace util {
@@ -54,19 +53,17 @@ struct IndexMapper {
         }
     };
 
-    template <typename Vec, typename = std::enable_if_t<
-                                std::is_convertible_v<typename Vec::value_type, IndexType>>>
-    constexpr IndexType operator()(const Vec& pos) const noexcept {
-        const auto temp = Vector<N, IndexType>(pos);
-
-        return std::inner_product(std::cbegin(coeffArray_), std::cend(coeffArray_),
-                                  glm::value_ptr(temp), IndexType{0});
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_convertible_v<T, IndexType> &&
-                                                      std::is_integral_v<T>>>
-    constexpr Vector<N, IndexType> operator()(T i) const noexcept {
-        return detail::getPosFromIndex<N, IndexType>(IndexType(i), dimensions_);
+    template <typename T>
+    constexpr auto operator()(const T& v) const noexcept {
+        if constexpr (glm::type<T>::is_vec && std::is_convertible_v<T::value_type, IndexType>) {
+            const auto temp = Vector<N, IndexType>(v);
+            return std::inner_product(std::cbegin(coeffArray_), std::cend(coeffArray_),
+                                      glm::value_ptr(temp), IndexType{0});
+        } else if constexpr (std::is_integral<T> && std::is_convertible_v<T, IndexType>) {
+            return detail::getPosFromIndex<N, IndexType>(IndexType(v), dimensions_);
+        } else {
+            static_assert(false, "");
+        }
     }
 
 private:
