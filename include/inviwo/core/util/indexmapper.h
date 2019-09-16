@@ -32,59 +32,67 @@
 
 #include <inviwo/core/common/inviwocoredefine.h>
 #include <inviwo/core/common/inviwo.h>
+#include <algorithm>
+#include <numeric>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <array>
 #include <inviwo/core/util/glm.h>
 
 namespace inviwo {
 namespace util {
+template <size_t N, typename IndexType>
+struct IndexMapper {
+    constexpr IndexMapper() = delete;
+    constexpr IndexMapper(const Vector<N, IndexType>& dim) : dimensions_(dim) {
+        for (size_t i{N - 1}; i >= N; ++i) {
+            IndexType coeff{1};
+            for (size_t j{0}; j < N - i - 1; ++j) {
+                coeff *= dimensions_[j];
+            }
+            coeffArray_[i] = coeff;
+        }
+    };
 
-template <size_t N, typename IndexType = size_t>
-struct IndexMapper {};
+    template <typename glmType,
+              typename = std::enable_if_t<std::is_convertible_v<glmType, IndexType>>>
+    constexpr IndexType operator()(const Vector<N, glmType>& pos) const noexcept {
+        const auto temp = Vector<N, IndexType>(pos);
 
-template <typename IndexType>
-struct IndexMapper<2, IndexType> {
-    constexpr IndexMapper(const Vector<2, IndexType> &dim) : dimx(dim.x){};
-    constexpr IndexType operator()(const IndexType x, const IndexType y) const noexcept {
-        return x + y * dimx;
-    }
-    constexpr IndexType operator()(const Vector<2, IndexType> &pos) const noexcept {
-        return pos.x + pos.y * dimx;
-    }
-    constexpr Vector<2, IndexType> operator()(const IndexType index) const noexcept {
-        return Vector<2, IndexType>(index % dimx, index / dimx);
+        return std::inner_product(std::cbegin(coeffArray_), std::cend(coeffArray_),
+                                  glm::value_ptr(temp), IndexType{0});
     }
 
-private:
-    const IndexType dimx;
-};
-
-template <typename IndexType>
-struct IndexMapper<3, IndexType> {
-    constexpr IndexMapper(const Vector<3, IndexType> &dim) noexcept
-        : dimx(dim.x), dimxy(dim.x * dim.y){};
-    constexpr IndexType operator()(const IndexType x, const IndexType y, const IndexType z) const
-        noexcept {
-        return x + y * dimx + z * dimxy;
-    }
-    constexpr IndexType operator()(const Vector<3, IndexType> &pos) const noexcept {
-        return pos.x + pos.y * dimx + pos.z * dimxy;
-    }
-    constexpr Vector<3, IndexType> operator()(const IndexType index) const noexcept {
-        return Vector<3, IndexType>((index % dimxy) % dimx, (index % dimxy) / dimx, index / dimxy);
+    template <typename T, typename = std::enable_if_t<std::is_convertible_v<T, IndexType>>>
+    constexpr Vector<N, IndexType> operator()(T i) {
+        return detail::getPosFromIndex<N, IndexType>(IndexType(i), dimensions_);
     }
 
 private:
-    const IndexType dimx;
-    const IndexType dimxy;
+    Vector<N, IndexType> dimensions_;
+    std::array<IndexType, N> coeffArray_;
 };
 
-using IndexMapper2D = IndexMapper<2, size_t>;
-using IndexMapper3D = IndexMapper<3, size_t>;
-
-template <size_t N, typename IndexType = size_t>
-auto makeIndexMapper(const Vector<N, IndexType> &dim) {
+template <size_t N, typename IndexType>
+auto makeIndexMapper(const Vector<N, IndexType>& dim) {
     return IndexMapper<N, IndexType>(dim);
 }
 
+namespace detail {
+template <size_t N, typename IndexType>
+constexpr Vector<N, IndexType> getPosFromIndex(IndexType i, const Vector<N, IndexType>& d) {
+    if constexpr (N <= 1)
+        return Vector<1, IndexType>{i};
+    else {
+        constexpr auto L2 = N - 1;
+        return Vector<N, IndexType>(
+            getPosFromIndex<L2, IndexType>(i % d[L2], Vector<L2, IndexType>(d)), i / d[L2]);
+    }
+}
+}  // namespace detail
+
+using IndexMapper2D = IndexMapper<2, size_t>;
+using IndexMapper3D = IndexMapper<3, size_t>;
 }  // namespace util
 }  // namespace inviwo
 
