@@ -54,9 +54,9 @@ struct IndexMapper {
         }
     };
 
-    template <typename glmType,
-              typename = std::enable_if_t<std::is_convertible_v<glmType, IndexType>>>
-    constexpr IndexType operator()(const Vector<N, glmType>& pos) const noexcept {
+    template <typename Vec, typename = std::enable_if_t<
+                                std::is_convertible_v<typename Vec::value_type, IndexType>>>
+    constexpr IndexType operator()(const Vec& pos) const noexcept {
         const auto temp = Vector<N, IndexType>(pos);
 
         return std::inner_product(std::cbegin(coeffArray_), std::cend(coeffArray_),
@@ -65,7 +65,7 @@ struct IndexMapper {
 
     template <typename T, typename = std::enable_if_t<std::is_convertible_v<T, IndexType> &&
                                                       std::is_integral_v<T>>>
-    constexpr Vector<N, IndexType> operator()(T i) {
+    constexpr Vector<N, IndexType> operator()(T i) const noexcept {
         return detail::getPosFromIndex<N, IndexType>(IndexType(i), dimensions_);
     }
 
