@@ -63,7 +63,8 @@ struct IndexMapper {
                                   glm::value_ptr(temp), IndexType{0});
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_convertible_v<T, IndexType>>>
+    template <typename T, typename = std::enable_if_t<std::is_convertible_v<T, IndexType> &&
+                                                      std::is_integral_v<T>>>
     constexpr Vector<N, IndexType> operator()(T i) {
         return detail::getPosFromIndex<N, IndexType>(IndexType(i), dimensions_);
     }
