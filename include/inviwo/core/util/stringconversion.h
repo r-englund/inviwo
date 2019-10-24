@@ -71,6 +71,8 @@ namespace util {
  */
 std::wstring toWstring(const std::string& str);
 
+std::string fromWstring(const std::wstring& str);
+
 }  // namespace util
 
 /**

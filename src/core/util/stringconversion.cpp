@@ -54,6 +54,16 @@ std::wstring toWstring(const std::string& str) {
     MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &result[0], size_needed);
     return result;
 }
+std::string fromWstring(const std::wstring& str) {
+    BOOL _;
+    char fallback = '?';
+    int size_needed =
+        WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), NULL, 0, &fallback, &_);
+    std::string result(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &result[0], size_needed,&fallback,&_);
+    return result;
+}
+
 #else
 std::wstring toWstring(const std::string& str) {
     auto state = std::mbstate_t();
@@ -61,6 +71,15 @@ std::wstring toWstring(const std::string& str) {
     size_t len = std::mbsrtowcs(nullptr, &s, 0, &state) + 1;
     std::wstring result(len, 0);
     std::mbsrtowcs(&result[0], &s, result.size(), &state);
+    return result;
+}
+
+std::string fromWstring(const std::wstring& str) {
+    auto state = std::mbstate_t();
+    const wchar_t* s = str.c_str();
+    size_t len = std::wcsrtombs(nullptr, &s, 0, &state) + 1;
+    std::string result(len, 0);
+    std::wcsrtombs(&result[0], &s, result.size(), &state);
     return result;
 }
 #endif
