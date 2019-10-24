@@ -74,8 +74,10 @@ TempFileHandle::TempFileHandle(const std::string& prefix, const std::string& suf
         throw Exception("could not create temporary file name", IVW_CONTEXT);
     }
 
-    filename_.assign(tempFile.begin(),
-                     tempFile.begin() + std::min<size_t>(wcslen(tempFile.data()), MAX_PATH));
+    std::wstring tempFileStr(
+        tempFile.begin(), tempFile.begin() + std::min<size_t>(wcslen(tempFile.data()), MAX_PATH));
+    
+    filename_ = fromWstring(tempFileStr);
     filename_ += suffix;
 
     handle_ = filesystem::fopen(filename_, "w");

@@ -758,7 +758,7 @@ std::string getCanonicalPath(const std::string& url) {
         return result;
     } else {
         std::wstring resultWStr{buffer};
-        result.assign(resultWStr.begin(), resultWStr.end());
+        result = util::fromWstring(resultWStr);
     }
 
     return result;
