@@ -65,22 +65,25 @@ bool PropertyCefSynchronizer::OnQuery(CefRefPtr<CefBrowser> browser, CefRefPtr<C
         auto command = j.at("command").get<std::string>();
         auto propCommand = std::string("property");
         if (command == "subscribe") {
-            auto network = InviwoApplication::getPtr()->getProcessorNetwork();
+            auto network = InviwoApplication::getPtr()->getProcessorNetwork(); 
             auto p = j.at("path").get<std::string>();
             auto path = splitString(p, '.');
             auto prop = network->getProperty(path);
             if (prop) {
                 auto onChange = j.at("onChange").get<std::string>();
                 auto widget = std::find_if(
-                    std::begin(widgets_), std::end(widgets_), [onChange, prop](const auto& widget) {
+                    std::rbegin(widgets_), std::rend(widgets_), [onChange, prop](const auto& widget) {
                         return prop == widget->getProperty() && onChange == widget->getOnChange();
                     });
-                if (widget == widgets_.end()) {
+                if (widget == widgets_.rend()) {
                     auto propertyObserver = j.at("propertyObserver").get<std::string>();
                     startSynchronize(prop, onChange, propertyObserver);
-                    widget = --(widgets_.end());
+                    widget = widgets_.rbegin();
                     (*widget)->setFrame(frame);
                 }
+                
+                return true;
+                
             } else {
                 callback->Failure(0, "Could not find property: " + p);
             }
@@ -101,7 +104,7 @@ bool PropertyCefSynchronizer::OnQuery(CefRefPtr<CefBrowser> browser, CefRefPtr<C
                 }
 
                 toProp->set(fromProp);
-                return false;
+                return true;
             } else {
 
                 auto propertyPath = j.at("path").get<std::string>();

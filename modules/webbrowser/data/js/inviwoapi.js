@@ -24,7 +24,7 @@ class InviwoAPI {
      *                 Callback argument will contain JSON-encoded property parameters.
      * @param propertyObserver callback that will be called on PropertyObserver notifications in
      *     inviwo.
-     *                         Exmples of notifications: onSetReadOnly, onSetDisplayName.
+     *                         Examples of notifications: onSetReadOnly, onSetDisplayName.
      *                         Callback argument will contain JSON-encoded property parameters.
      */
     async subscribe(path, onChange, propertyObserver) {
@@ -32,15 +32,24 @@ class InviwoAPI {
         if (typeof propertyObserver === 'function') {
             observerName = propertyObserver.name;
         }
+
+        var func = "";
+        if(onChange.name!==""){
+            func = onChange.name;
+        }
+        else{
+            func = "" + onChange; 
+        }
+
         window.cefQuery({
             request: JSON.stringify({
                 'command': 'subscribe',
                 'path': path,
-                'onChange': onChange.name,
+                'onChange': func,
                 'propertyObserver': observerName
             }),
-            onSuccess: function(response) {},
-            onFailure: function(error_code, error_message) {}
+            onSuccess: function (response) { console.log("Success" + response); },
+            onFailure: function (error_code, error_message) { console.log("Fail " + error_code + " " + error_message );}
         });
     }
     /*
@@ -103,6 +112,14 @@ class InviwoAPI {
             onSuccess: function(response) {
                 if (typeof onSuccess === 'function') {
                     onSuccess(JSON.parse(response));
+                } else if (typeof onSuccess === 'object' &&
+                    onSuccess["obj"] !== undefined  &&
+                    onSuccess["onSuccess"] !== undefined && 
+                    onSuccess["obj"][onSuccess["onSuccess"]] !== undefined
+                ) { 
+                    onSuccess["obj"][onSuccess["onSuccess"]](JSON.parse(response));
+                }else{
+                    console.log(typeof onSuccess)
                 }
             },
             onFailure: function(error_code, error_message) {

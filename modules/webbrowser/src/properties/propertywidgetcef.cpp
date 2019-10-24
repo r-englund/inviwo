@@ -89,7 +89,13 @@ void PropertyWidgetCEF::setFrameIfPartOfFrame(CefRefPtr<CefFrame> frame) {
     // Create a visitor from this widget and run it on the frame to see if the widget id can be
     // found in the frame's html code.
     std::stringstream function;
-    function << "function " << getOnChange();
+    const auto& funcStr = getOnChange();
+    if (funcStr.find("{") != std::string::npos) {
+        function << "(" << getOnChange() << ")";
+    } else {
+        function << "function " << getOnChange();
+    }
+
     CefRefPtr<CefDOMSearchId> visitor = new CefDOMSearchId(function.str(), this, frame);
     frame->GetSource(visitor);
 }
