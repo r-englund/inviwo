@@ -106,6 +106,10 @@ macro(ivw_define_standard_definitions project_name target)
     # Set the compiler flags
     ivw_to_macro_name(u_project_name ${project_name})
     set_target_properties(${target} PROPERTIES DEFINE_SYMBOL ${u_project_name}_EXPORTS)
+    ivw_define_standard_definitions_part(${target})
+endmacro()
+
+macro(ivw_define_standard_definitions_part target)
 
     target_compile_definitions(${target} PRIVATE 
         $<$<BOOL:${BUILD_SHARED_LIBS}>:INVIWO_ALL_DYN_LINK>

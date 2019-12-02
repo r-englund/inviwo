@@ -894,3 +894,8 @@ else()
     install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/inviwo_buildinfo.ini DESTINATION bin COMPONENT modules CONFIGURATIONS Release Debug)
 endif()
 #--------------------------------------------------------------------
+
+
+set(PCH_HEADERS ${HEADER_FILES})
+list(REMOVE_ITEM PCH_HEADERS "${IVW_INCLUDE_DIR}/inviwo/core/common/defaulttohighperformancegpu.h")
+ivw_target_pch_header(inviwo-core ${PCH_HEADERS})
