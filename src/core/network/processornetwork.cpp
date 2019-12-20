@@ -142,8 +142,8 @@ void ProcessorNetwork::addConnection(const PortConnection& connection) {
     addConnection(connection.getOutport(), connection.getInport());
 }
 void ProcessorNetwork::addConnection(Outport* src, Inport* dst) {
-    if (!isPortInNetwork(src)) throw Exception("Outport not found in network");
-    if (!isPortInNetwork(dst)) throw Exception("Inport not found in network");
+    if (!isPortInNetwork(src)) throw Exception("Outport not found in network", IVW_CONTEXT);
+    if (!isPortInNetwork(dst)) throw Exception("Inport not found in network", IVW_CONTEXT);
 
     if (canConnect(src, dst) && !isConnected(src, dst)) {
         NetworkLock lock(this);
