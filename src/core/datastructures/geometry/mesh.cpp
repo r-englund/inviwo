@@ -182,6 +182,16 @@ BufferBase* Mesh::getBuffer(BufferType type) {
     }
 }
 
+const BufferBase* Mesh::getBuffer(BufferType type) const {
+    auto it = std::find_if(buffers_.begin(), buffers_.end(),
+                           [&](const auto& item) { return item.first.type == type; });
+    if (it != buffers_.end()) {
+        return it->second.get();
+    } else {
+        return nullptr;
+    }
+}
+
 IndexBuffer* Mesh::getIndices(size_t idx) {
     if (idx >= indices_.size()) {
         throw RangeException("Index out of range", IVW_CONTEXT);

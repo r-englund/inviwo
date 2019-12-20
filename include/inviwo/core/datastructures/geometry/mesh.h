@@ -196,6 +196,11 @@ public:
      */
     BufferBase* getBuffer(BufferType type);
 
+    /**
+     * @return The first buffer matching BufferType type or nullptr;
+     */
+    const BufferBase* getBuffer(BufferType type) const;
+
     IndexBuffer* getIndices(size_t idx);
 
     MeshInfo getDefaultMeshInfo() const;
