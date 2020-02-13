@@ -236,7 +236,7 @@ BaseModule::BaseModule(InviwoApplication* app) : InviwoModule(app, "Base") {
     util::for_each_type<OrdinalPropertyAnimator::Types>{}(RegHelper{}, *this);
 }
 
-int BaseModule::getVersion() const { return 4; }
+int BaseModule::getVersion() const { return 5; }
 
 std::unique_ptr<VersionConverter> BaseModule::getConverter(int version) const {
     return std::make_unique<Converter>(version);
@@ -389,8 +389,24 @@ bool BaseModule::Converter::convert(TxElement* root) {
                 root, {{xml::Kind::processor("org.inviwo.WorldTransformVolume")}}, "type",
                 "org.inviwo.WorldTransformVolume", "org.inviwo.WorldTransformVolumeDeprecated");
             res |= xml::changeIdentifiers(root, replV3);
-            return res;
+            [[fallthrough]];
         }
+
+        case 4:
+            res |= xml::changeAttribute(root,
+                                        {{xml::Kind::processor("org.inviwo.OrientationIndicator"),
+                                          xml::Kind::property("org.inviwo.CameraProperty")}},
+                                        "identifier", "cam", "camera");
+
+            res |= xml::changeAttribute(
+                root, {{xml::Kind::propertyLinkSource("org.inviwo.CameraProperty", "cam")}},
+                "identifier", "cam", "camera");
+
+            res |= xml::changeAttribute(
+                root, {{xml::Kind::propertyLinkDestination("org.inviwo.CameraProperty", "cam")}},
+                "identifier", "cam", "camera");
+
+            return res;
 
         default:
             return false;  // No changes

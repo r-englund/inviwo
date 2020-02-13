@@ -59,7 +59,7 @@ OrientationIndicator::OrientationIndicator()
     , locationType_("locationType", "Location Type")
 
     , viewCoords_("viewCoords", "View Coords", vec2(0.05f), vec2(0.f), vec2(1.f))
-    , cam_("cam", "Camera")
+    , cam_("camera", "Camera")
     , offset_("offset", "Offset", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
 
     addPort(outport_);
