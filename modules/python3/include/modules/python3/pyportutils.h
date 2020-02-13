@@ -28,6 +28,8 @@
  *********************************************************************************/
 #pragma once
 
+#include  <type_traits>
+
 #include <warn/push>
 #include <warn/ignore/shadow>
 #include <pybind11/pybind11.h>
@@ -45,6 +47,8 @@
 #include <inviwo/core/util/exception.h>
 
 #include <fmt/format.h>
+
+#pragma optimize("", off)
 
 namespace inviwo {
 
@@ -85,17 +89,48 @@ pybind11::class_<util::IterRangeGenerator<Iter>> exposeIterRangeGenerator(pybind
         .def("__next__", &util::IterRangeGenerator<Iter>::next);
 }
 
+template <class T>
+class HasClone {
+    template <class U, class = typename std::enable_if<
+                           !std::is_member_function_pointer<decltype(&U::clone)>::value>::type>
+    static std::true_type check(int);
+    template <class>
+    static std::false_type check(...);
+
+public:
+    static const bool value = decltype(check<T>(0))::value;
+};
+ 
+
 template <typename Port>
 pybind11::class_<Port, Outport, PortPtr<Port>> exposeOutport(pybind11::module& m,
                                                              const std::string& name) {
     namespace py = pybind11;
     using T = typename Port::type;
-    return pybind11::class_<Port, Outport, PortPtr<Port>>(m, (name + "Outport").c_str())
-        .def(py::init<std::string>())
-        .def("getData", &Port::getData)
+    pybind11::class_<Port, Outport, PortPtr<Port>> port(m, (name + "Outport").c_str());
+    port.def(py::init<std::string>())
+        .def("getData", &Port::getData, py::return_value_policy::reference)
         .def("detatchData", &Port::detachData)
-        .def("setData", static_cast<void (Port::*)(std::shared_ptr<const T>)>(&Port::setData));
-}
+        .def("setData", [](Port& self, std::shared_ptr<const T> data) { self.setData(data); });
+        
+    
+
+    if constexpr (HasClone<T>::value) {
+        port.def("setData2",
+             [](Port& self, const T& data) { self.setData(std::shared_ptr<T>(data.clone())); });
+    }
+
+    if constexpr (std::is_copy_constructible_v<T>) {
+        port.def("setData3",
+                 [](Port& self, const T& data) { self.setData(std::make_shared<T>(data)); });
+    }
+
+    if constexpr (std::is_default_constructible_v<T>) {
+        port.def_static("createData", []() { return std::make_shared<T>(); });
+    }
+    return port;
+
+}  // namespace inviwo
 
 template <typename Port>
 pybind11::class_<Port, Inport, PortPtr<Port>> exposeInport(pybind11::module& m,
@@ -110,7 +145,7 @@ pybind11::class_<Port, Inport, PortPtr<Port>> exposeInport(pybind11::module& m,
     return pybind11::class_<Port, Inport, PortPtr<Port>>(m, (name + "Inport").c_str())
         .def(py::init<std::string>())
         .def("hasData", &Port::hasData)
-        .def("getData", &Port::getData)
+        .def("getData", &Port::getData, py::return_value_policy::reference)
         .def("getVectorData", &Port::getVectorData)
         .def("getSourceVectorData", &Port::getSourceVectorData)
         .def("data",

@@ -420,6 +420,31 @@ std::shared_ptr<Image> poissonDisk(size2_t dims, size_t poissonDotsAlongX, size_
     return img;
 }
 
+
+template <typename T = float, typename RG = std::mt19937>
+glm::tvec2<T> randVec2(RG &&randomGenerator) {
+    static std::uniform_real_distribution<T> thetaDist(0, glm::pi<T> * 2);
+    static std::uniform_real_distribution<T> phiDist(-1, 1);
+    auto theta = thetaDist(randomGenerator);
+    auto phi = phiDist(randomGenerator);
+
+    return {std::sin(phi) * std::cos(theta),
+        std::sin(phi) * std::sin(theta),
+        std::cos(phi)};
+}
+
+template <typename T = float, typename RG = std::mt19937>
+glm::tvec3<T> randVec3(RG &&randomGenerator) {
+    static std::uniform_real_distribution<T> thetaDist(0, glm::pi<T> * 2);
+    static std::uniform_real_distribution<T> phiDist(-1, 1);
+    auto theta = thetaDist(randomGenerator);
+    auto phi = phiDist(randomGenerator);
+    
+    return {std::sin(phi) * std::cos(theta),
+            std::sin(phi) * std::sin(theta),
+            std::cos(phi)};
+}
+
 }  // namespace util
 }  // namespace inviwo
 

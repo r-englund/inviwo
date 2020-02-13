@@ -32,7 +32,7 @@
 namespace inviwo {
 
 namespace {
-    // Copied from dendogramplotter.cpp
+// Copied from dendogramplotter.cpp
 vec3 rgb(unsigned char r, unsigned char g, unsigned char b) {
     return {r / 255.0f, g / 255.0f, b / 255.0f};
 }
@@ -117,9 +117,11 @@ DataFrameColumnToColorVector::DataFrameColumnToColorVector()
 
 void DataFrameColumnToColorVector::process() {
     auto dataFrame = dataFrame_.getData();
+    if (!dataFrame) {
+        throw Exception("No data frame", IVW_CONTEXT);
+    }
 
     bool updateTF = false;
-    
 
     if (useSelectedColumnFromBrushing_.get() && brushing_.isConnected()) {
         auto selectedCols = brushing_.getSelectedColumns();
@@ -129,19 +131,25 @@ void DataFrameColumnToColorVector::process() {
         if (!selectedCols.empty()) {
             auto cur = selectedColorAxis_.getSelectedIndex();
             auto newID = *selectedCols.begin();
-            if(cur != newID){
+            if (cur != newID) {
                 selectedColorAxis_.setSelectedIndex(newID);
                 updateTF = true;
             }
-            
         }
     }
+
+    auto null_throw = [&](auto nullable) {
+        if (nullable == nullptr) {
+            throw Exception("Got null when not expected", IVW_CONTEXT);
+        }
+        return nullable;
+    };
 
     updateTF |= dataFrame_.isChanged();
     updateTF |= selectedColorAxis_.isModified();
 
     colors_.setData(
-        selectedColorAxis_.getBuffer()
+        null_throw(selectedColorAxis_.getBuffer())
             ->getRepresentation<BufferRAM>()
             ->dispatch<std::shared_ptr<std::vector<vec4>>, dispatching::filter::Scalars>(
                 [&](auto buf) {
@@ -151,17 +159,19 @@ void DataFrameColumnToColorVector::process() {
                     double minV = static_cast<double>(*minMax.first);
                     double maxV = static_cast<double>(*minMax.second);
 
-                    if((DataFormat<T>::get()->getNumericType() == NumericType::UnsignedInteger || 
-                        DataFormat<T>::get()->getNumericType() == NumericType::SignedInteger ) &&
-                        updateTF && autoSetTF_.get()){
-                        size_t N = (*minMax.second) - (*minMax.first); 
-                        if(N>100){
+                    if ((DataFormat<T>::get()->getNumericType() == NumericType::UnsignedInteger ||
+                         DataFormat<T>::get()->getNumericType() == NumericType::SignedInteger) &&
+                        updateTF && autoSetTF_.get()) {
+                        size_t N = (*minMax.second) - (*minMax.first);
+                        if (N > 100) {
                             LogWarn("N is larger than a 100: " << N);
                             N = 100;
                         }
-                        util::makeDiscreteTF(tf_.get() , semirandomcolors , N+1 , true); // plus 1 to include both min and max 
+                        util::makeDiscreteTF(tf_.get(), semirandomcolors, N + 1,
+                                             true);  // plus 1 to include both min and max
                         tf_.setModified();
-                        LogWarn("How often is this called?")
+                        static size_t i = 0;
+                        LogWarn("How often is this called? " << ++i);
                     }
                     auto colors = std::make_shared<std::vector<vec4>>();
                     const double range = (maxV - minV);
