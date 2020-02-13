@@ -688,6 +688,44 @@ TIFFHeader getTIFFHeader(const std::string& filename) {
     throw Exception("TIFF not available", IVW_CONTEXT_CUSTOM("cimgutil::getTIFFDataFormat()"));
     return {};
 #endif
+
+}
+
+
+void create2by2TestImage(std::string imgFolder) {
+    using CImg = cimg_library::CImg<glm::u8>;
+
+    CImg img(2,2,1,3);
+    img(0,0,0,0) = 255;
+    img(0,0,0,1) = 0;
+    img(0,0,0,2) = 0;
+           
+    img(1,0,0,0) = 0;
+    img(1,0,0,1) = 255;
+    img(1,0,0,2) = 0;
+           
+    img(1,1,0,0) = 0;
+    img(1,1,0,1) = 0;
+    img(1,1,0,2) = 255;
+           
+    img(0,1,0,0) = 255;
+    img(0,1,0,1) = 255;
+    img(0,1,0,2) = 0;
+
+   // img = img.XYZtoRGB();
+
+    img.save(  "E:/temp/2by2/base.bmp"  );
+    for(int s : {4,8,16,32,64,128,256,100,200,400}){
+        std::ostringstream oss;
+        oss << s  << "x" << s;
+        auto c = [](auto v){return decltype(v)(v);};
+        c(img).resize(s,s,-100,-100,1).save(  ("E:/temp/2by2/nearest-" + oss.str() + ".bmp"  ).c_str());
+        c(img).resize(s,s,-100,-100,2).save(  ("E:/temp/2by2/movingavg-" + oss.str() + ".bmp").c_str());
+        c(img).resize(s,s,-100,-100,3).save(  ("E:/temp/2by2/lerp-" + oss.str() + ".bmp"     ).c_str());
+        c(img).resize(s,s,-100,-100,4).save(  ("E:/temp/2by2/grid-" + oss.str() + ".bmp"     ).c_str());
+        c(img).resize(s,s,-100,-100,5).save(  ("E:/temp/2by2/cubic-" + oss.str() + ".bmp"    ).c_str());
+        c(img).resize(s,s,-100,-100,6).save(  ("E:/temp/2by2/lanczos-" + oss.str() + ".bmp"  ).c_str());
+    }
 }
 
 }  // namespace cimgutil

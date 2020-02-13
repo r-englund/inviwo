@@ -131,6 +131,8 @@ IVW_MODULE_CIMG_API bool rescaleLayerRamToLayerRam(const LayerRAM* source, Layer
 IVW_MODULE_CIMG_API std::string getLibJPGVersion();
 IVW_MODULE_CIMG_API std::string getOpenEXRVersion();
 
+IVW_MODULE_CIMG_API void create2by2TestImage(std::string imgFolder);
+
 }  // namespace cimgutil
 
 }  // namespace inviwo
