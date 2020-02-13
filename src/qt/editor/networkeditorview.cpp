@@ -67,11 +67,14 @@ NetworkEditorView::NetworkEditorView(NetworkEditor* networkEditor, InviwoMainWin
     , editor_(networkEditor)
     , search_{new NetworkSearch(mainwindow_)}
     , overlay_{new TextLabelOverlay(viewport())}
-    , scrollPos_{0, 0}
-    , loadHandle_{mainwindow_->getInviwoApplication()->getWorkspaceManager()->onLoad(
-          [this](Deserializer&) { fitNetwork(); })}
-    , clearHandle_{mainwindow_->getInviwoApplication()->getWorkspaceManager()->onClear(
-          [this]() { fitNetwork(); })} {
+#ifdef IVW_PROFILING
+, networkProfilingInfo_ { new NetworkProfilingInfoWidget(mainwindow_) }
+#endif
+, scrollPos_{0, 0},
+    loadHandle_{mainwindow_->getInviwoApplication()->getWorkspaceManager()->onLoad(
+        [this](Deserializer&) { fitNetwork(); })},
+    clearHandle_{mainwindow_->getInviwoApplication()->getWorkspaceManager()->onClear(
+        [this]() { fitNetwork(); })} {
 
     NetworkEditorObserver::addObservation(editor_);
     QGraphicsView::setScene(editor_);
@@ -93,6 +96,14 @@ NetworkEditorView::NetworkEditorView(NetworkEditor* networkEditor, InviwoMainWin
         search_->setSizePolicy(sp);
         grid->addWidget(search_, 0, 1, Qt::AlignTop | Qt::AlignRight);
     }
+#ifdef IVW_PROFILING
+    {
+        auto sp = networkProfilingInfo_->sizePolicy();
+        sp.setHorizontalStretch(1);
+        networkProfilingInfo_->setSizePolicy(sp);
+        grid->addWidget(networkProfilingInfo_, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
+    }
+#endif
 
     setRenderHint(QPainter::Antialiasing, true);
     setMouseTracking(true);

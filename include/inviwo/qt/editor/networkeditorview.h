@@ -38,7 +38,12 @@
 #include <warn/ignore/all>
 #include <QGraphicsView>
 #include <QImage>
+#include <QPushButton>
 #include <warn/pop>
+
+#include <inviwo/qt/editor/inviwomainwindow.h>
+#include <modules/qtwidgets/inviwoqtutils.h>
+#include <modules/qtwidgets/qstringhelper.h>
 
 class QDropEvent;
 class QDragEnterEvent;
@@ -49,6 +54,97 @@ class InviwoMainWindow;
 class MenuItem;
 class NetworkSearch;
 class TextLabelOverlay;
+
+class IVW_QTEDITOR_API NetworkProfilingInfoWidget : public QPushButton,
+                                                    public ProcessorNetworkEvaluationObserver {
+public:
+    NetworkProfilingInfoWidget(InviwoMainWindow* parent)
+        : QPushButton(QIcon(":/svgicons/timer.svg"), "0", parent) {
+        parent->getInviwoApplication()->getProcessorNetworkEvaluator()->addObserver(this);
+
+        this->setDisabled(true);
+
+        this->setStyleSheet("border: 0px; color: #000000; ");
+    }
+
+    bool event(QEvent* event) override {
+        if (event->type() == QEvent::ToolTip) {
+            setToolTip(utilqt::toLocalQString(log()));
+        }
+        return QPushButton::event(event);
+    }
+
+    virtual void onProcessorNetworkEvaluationBegin() override {
+        if (clock_.isRunning()) {
+            LogWarn("Clock is already running");
+            clock_.stop();
+        }
+
+        clock_.reset();
+        clock_.start();
+    };
+    virtual void onProcessorNetworkEvaluationEnd() override {
+        if (!clock_.isRunning()) {
+            LogWarn("Clock is already running");
+        } else {
+            clock_.stop();
+            evaluationTimes_.push_back(clock_.getElapsedMilliseconds());
+            auto N = evaluationTimes_.size();
+            auto str = QStringHelper<decltype(N)>::toLocaleString(QLocale::system(), N);
+            setText(str);
+        }
+    };
+
+    void clear() { evaluationTimes_.clear(); }
+
+    Document log() const {
+        using P = Document::PathComponent;
+        using H = utildoc::TableBuilder::Header;
+
+        Document doc;
+
+        const auto N = evaluationTimes_.size();
+        doc.append("style", "*{color: #9d9995;}");
+        doc.append("b", "Network Evaluation Statistics");
+
+        utildoc::TableBuilder tb(doc.handle(), P::end());
+
+        tb("Number of evaluations", N);
+
+        if (N > 0) {
+            auto [min, max] = std::minmax_element(evaluationTimes_.begin(), evaluationTimes_.end());
+
+            auto meanTime =
+                std::accumulate(evaluationTimes_.begin(), evaluationTimes_.end(), 0.0) / N;
+
+            auto varFunc = [mean = meanTime](auto accum, auto sample) {
+                const auto temp = sample - mean;
+                return accum + (temp * temp);
+            };
+
+            auto variance =
+                std::accumulate(evaluationTimes_.begin(), evaluationTimes_.end(), 0.0, varFunc) /
+                (N - 1);
+
+            tb("Mean evaluation time (ms)", meanTime);
+            tb("Standard deviation (ms)", std::sqrt(variance));
+            tb("Min evaluatin time (ms)", *min);
+            tb("Max evaluatin time (ms)", *max);
+
+            size_t last = std::min(N, size_t(12));
+            auto last12Times =
+                joinString(evaluationTimes_.rbegin(), evaluationTimes_.rbegin() + last, " ms, ");
+            tb(fmt::format("Last {} evaluations", last),
+               last12Times + (last != N ? ("ms, ...]") : ("ms]")));
+        }
+
+        return doc;
+    }
+
+private:
+    Clock clock_;
+    std::vector<double> evaluationTimes_;
+};
 
 class IVW_QTEDITOR_API NetworkEditorView : public QGraphicsView, public NetworkEditorObserver {
 public:
@@ -82,6 +178,9 @@ private:
     NetworkEditor* editor_;
     NetworkSearch* search_;
     TextLabelOverlay* overlay_;
+#ifdef IVW_PROFILING
+    NetworkProfilingInfoWidget* networkProfilingInfo_;
+#endif
 
     ivec2 scrollPos_;
     WorkspaceManager::DeserializationHandle loadHandle_;
