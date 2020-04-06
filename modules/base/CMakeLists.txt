@@ -261,7 +261,7 @@ ivw_add_unittest(${TEST_FILES})
 
 #--------------------------------------------------------------------
 # Create module
-ivw_create_module(${SOURCE_FILES} ${MOC_FILES} ${HEADER_FILES})
+ivw_create_module(${SOURCE_FILES} ${MOC_FILES} PCH_HEADERS ${HEADER_FILES})
 if(IVW_BENCHMARKS)
     add_subdirectory(tests/benchmarks)
 endif()
