@@ -28,20 +28,6 @@
 #################################################################################
 
 
-
-if(WIN32)
-    option(PRECOMPILED_HEADERS "Create and use precompilied headers" ON)
-else()
-    option(PRECOMPILED_HEADERS "Create and use precompilied headers" OFF)
-endif()
-
-
-if(PRECOMPILED_HEADERS)
-    include(${CMAKE_CURRENT_LIST_DIR}/cotire.cmake)
-endif()
-
-
-
 # Set header ignore paths for cotire
 
 function(ivw_get_header_path header retval)
@@ -93,11 +79,69 @@ if(WIN32 AND MSVC)
     ivw_get_header_path("windows.h" ivw_private_windows_path)
 endif()
 
+
+
+set(IVW_DEFAULT_PCH_MODE "No PCH")
+
+set(IVW_TURN_ON_PCH OFF) # Default off
+if(DEFINED PRECOMPILED_HEADERS) # Respect the value of our old variable, for backwards compatibility with old cmake-caches
+    set(IVW_TURN_ON_PCH ${PRECOMPILED_HEADERS})
+elseif(WIN32)
+    set(IVW_TURN_ON_PCH ON) 
+endif()
+
+set(IVW_PCH_OPTIONS "No PCH" "Cotire")
+string(CONCAT IVW_PCH_DOCSTRING "Select mode for pch:\n" 
+                                "• No PCH: Do not use precompiled \n"
+                                "• Cotire: Use Cotire to generate precompiled headers (the old way)")
+
+# CMake added support for precompiled headers in version 3.16, fallback on cotire
+if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 
+    if(${IVW_TURN_ON_PCH})
+        set(IVW_DEFAULT_PCH_MODE "Cotire")
+    endif()
+else()
+    set(IVW_PCH_OPTIONS ${IVW_PCH_OPTIONS} "CMake")
+    string(CONCAT IVW_PCH_DOCSTRING "${IVW_PCH_DOCSTRING}\n"
+                                    "• CMake: Use CMake functionality for precompiled headers (requires CMake 3.16 or newer)")
+    if(${IVW_TURN_ON_PCH})
+        set(IVW_DEFAULT_PCH_MODE "CMake") 
+    endif()
+endif()
+
+
+set(IVW_PRECOMPILED_HEADERS_MODE ${IVW_DEFAULT_PCH_MODE} CACHE STRING ${IVW_PCH_DOCSTRING})
+set_property(CACHE IVW_PRECOMPILED_HEADERS_MODE PROPERTY STRINGS ${IVW_PCH_OPTIONS})
+
+if(IVW_PRECOMPILED_HEADERS_MODE STREQUAL "Cotire")
+    include(${CMAKE_CURRENT_LIST_DIR}/cotire.cmake)
+endif()
+
+
+# Set which headers files should be used for precompile headers of given target
+function(ivw_target_precompile_headers target)
+    if(IVW_PRECOMPILED_HEADERS_MODE STREQUAL "Cotire")
+        ivw_use_cotire_on_target(${target})
+    elseif(IVW_PRECOMPILED_HEADERS_MODE STREQUAL "CMake")
+        if(ARGN)
+            target_precompile_headers(${target} PUBLIC ${ARGN})
+        endif()
+    endif()
+endfunction()
+
+
 # Optimize compilation with pre-compilied headers from inviwo core
 function(ivw_compile_optimize_inviwo_core_on_target target)
-    message(DEPRECATION "Use ivw_compile_optimize_on_target")
+    message(DEPRECATION "Use ivw_target_precompile_headers(${target} \${HEADER_FILES})")
     ivw_compile_optimize_on_target(${target})
 endfunction()
+
+function(ivw_compile_optimize_on_target target)
+    message(DEPRECATION "Use ivw_target_precompile_headers(${target} \${HEADER_FILES})")
+    ivw_target_precompile_headers(${target})
+endfunction()
+
+
 
 # Optimize compilation with pre-compilied headers
 # Custom target properties:
@@ -105,8 +149,8 @@ endfunction()
 #  * COTIRE_PREFIX_HEADER_PUBLIC_INCLUDE_PATH 
 # We make sure that these properties are propagated to the 
 # depending targets.
-function(ivw_compile_optimize_on_target target)
-    if(PRECOMPILED_HEADERS)
+function(ivw_use_cotire_on_target target)
+    if(IVW_PRECOMPILED_HEADERS_MODE STREQUAL "Cotire")
         ivw_get_target_property_recursive(publicIgnorePaths ${target} COTIRE_PREFIX_HEADER_PUBLIC_IGNORE_PATH False)
         get_target_property(ignorePaths ${target} COTIRE_PREFIX_HEADER_IGNORE_PATH)
         if(NOT ignorePaths)

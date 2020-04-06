@@ -488,7 +488,7 @@ endfunction()
 function(ivw_create_module)
     set(options "NO_PCH")
     set(oneValueArgs "VERSION" "GROUP")
-    set(multiValueArgs "")
+    set(multiValueArgs "PCH_HEADERS")
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -519,7 +519,7 @@ function(ivw_create_module)
         $<$<BOOL:${LEGACY}>:${CMAKE_CURRENT_SOURCE_DIR}/${l_project_name}moduledefine.h>
     )
 
-    remove_duplicates(ivw_unique_mod_files ${ARG_UNPARSED_ARGUMENTS} ${mod_class_files} ${cmake_files})
+    remove_duplicates(ivw_unique_mod_files ${ARG_UNPARSED_ARGUMENTS} ${mod_class_files} ${cmake_files} ${ARG_PCH_HEADERS})
 
     # Create library
     add_library(${${mod}_target} ${ivw_unique_mod_files})
@@ -543,8 +543,10 @@ function(ivw_create_module)
     target_link_libraries(${${mod}_target} PUBLIC ${ivw_dep_targets})
 
     # Optimize compilation with pre-compilied headers
-    if(NOT ARG_NO_PCH)
-        ivw_compile_optimize_on_target(${${mod}_target})
+    if(ARG_NO_PCH)
+        set_target_properties(${${mod}_target} PROPERTIES DISABLE_PRECOMPILE_HEADERS ON)
+    else()
+        ivw_target_precompile_headers(${${mod}_target} ${ARG_PCH_HEADERS})
     endif()
 
     # Add stuff to the installer
