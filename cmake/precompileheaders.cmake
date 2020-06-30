@@ -31,8 +31,10 @@
 
 if(WIN32)
     option(IVW_CFG_PRECOMPILED_HEADERS "Create and use precompilied headers" ON)
+    option(IVW_CFG_PRECOMPILED_HEADERS_NEW "Create and use precompilied headers" ON)
 else()
     option(IVW_CFG_PRECOMPILED_HEADERS "Create and use precompilied headers" OFF)
+    option(IVW_CFG_PRECOMPILED_HEADERS_NEW "Create and use precompilied headers" OFF)
 endif()
 
 
@@ -140,5 +142,12 @@ function(ivw_compile_optimize_on_target target)
         set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
         cotire(${target})
+    endif()
+endfunction()
+
+
+function (ivw_target_precompile_headers)
+    if(IVW_CFG_PRECOMPILED_HEADERS_NEW)
+        target_precompile_headers(${ARGV})
     endif()
 endfunction()
