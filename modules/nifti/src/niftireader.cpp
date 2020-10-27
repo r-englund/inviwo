@@ -27,6 +27,7 @@
  *
  *********************************************************************************/
 
+
 #include <modules/nifti/niftireader.h>
 #include <inviwo/core/datastructures/volume/volumeramprecision.h>
 #include <inviwo/core/datastructures/volume/volumedisk.h>
@@ -41,7 +42,38 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <nifti1.h>
+#include <nifti1_io.h>
+
 namespace inviwo {
+
+    
+
+/**
+ * \brief A loader of Nifti files. Used to create VolumeRAM representations.
+ * This class us used by the NiftiReader.
+ */
+class IVW_MODULE_NIFTI_API NiftiVolumeRAMLoader
+    : public DiskRepresentationLoader<VolumeRepresentation> {
+public:
+    NiftiVolumeRAMLoader(std::shared_ptr<nifti_image> nim_, std::array<int, 7> start_index_,
+                         std::array<int, 7> region_size_, std::array<bool, 3> flipAxis);
+    virtual NiftiVolumeRAMLoader* clone() const override;
+    virtual ~NiftiVolumeRAMLoader() = default;
+
+    virtual std::shared_ptr<VolumeRepresentation> createRepresentation(
+        const VolumeRepresentation& src) const override;
+    virtual void updateRepresentation(std::shared_ptr<VolumeRepresentation> dest,
+                                      const VolumeRepresentation& src) const override;
+
+private:
+    std::array<int, 7> start_index;
+    std::array<int, 7> region_size;
+    std::array<bool, 3> flipAxis;  // Flip x,y,z axis?
+    std::shared_ptr<nifti_image> nim;
+};
+
+
 
 NiftiReader::NiftiReader() : DataReaderType<VolumeSequence>() {
     addExtension(FileExtension("nii", "NIfTI-1 file format"));
@@ -280,6 +312,8 @@ std::shared_ptr<NiftiReader::VolumeSequence> NiftiReader::readData(const std::st
 
     return volumes;
 }
+
+
 
 NiftiVolumeRAMLoader::NiftiVolumeRAMLoader(std::shared_ptr<nifti_image> nim_,
                                            std::array<int, 7> start_index_,

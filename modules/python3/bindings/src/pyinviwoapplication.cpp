@@ -31,8 +31,10 @@
 
 #include <inviwo/core/common/inviwoapplication.h>
 #include <inviwo/core/common/inviwomodule.h>
+#include <inviwo/core/util/settings/settings.h>
 #include <inviwo/core/network/processornetwork.h>
 #include <inviwopy/vectoridentifierwrapper.h>
+
 
 namespace inviwo {
 

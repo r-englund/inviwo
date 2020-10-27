@@ -68,7 +68,7 @@ private:
 };
 
 template <typename CTy, typename CTr>
-IVW_MODULE_HDF5_API std::basic_ostream<CTy, CTr>& operator<<(std::basic_ostream<CTy, CTr>& os,
+std::basic_ostream<CTy, CTr>& operator<<(std::basic_ostream<CTy, CTr>& os,
                                                              const MetaData& metadata) {
     return os << metadata.toString();
 }

@@ -70,7 +70,7 @@ IVW_MODULE_HDF5_API Path operator+(const Path &lhs, const Path &rhs);
 IVW_MODULE_HDF5_API Path operator+(const Path &lhs, const std::string &rhs);
 
 template <typename CTy, typename CTr>
-IVW_MODULE_HDF5_API std::basic_ostream<CTy, CTr> &operator<<(std::basic_ostream<CTy, CTr> &os,
+std::basic_ostream<CTy, CTr> &operator<<(std::basic_ostream<CTy, CTr> &os,
                                                              const Path &path) {
     return os << path.toString();
 }

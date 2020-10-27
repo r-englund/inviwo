@@ -41,7 +41,7 @@ ivw_add_unittest(${TEST_FILES})
 
 #--------------------------------------------------------------------
 # Create module
-ivw_create_module(${SOURCE_FILES} ${HEADER_FILES})
+ivw_create_module(NO_PCH ${SOURCE_FILES} ${HEADER_FILES})
 
 find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
