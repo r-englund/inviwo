@@ -31,5 +31,51 @@ ivw_suppress_compiler_warnings(${targets})
 # https://blog.kitware.com/upcoming-in-cmake-2-8-12-osx-rpath-support/
 set_target_properties(${targets} PROPERTIES MACOSX_RPATH ON)
 
+set(incdir ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include/assimp)
+set(codedir ${CMAKE_CURRENT_SOURCE_DIR}/assimp/code)
+
+ivw_target_precompile_headers(assimp PRIVATE 
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/types.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/BaseImporter.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/Exceptional.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/TinyFormatter.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/Step/STEPFile.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/DefaultLogger.hpp>
+
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/material.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/anim.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/light.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/texture.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/camera.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/scene.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/metadata.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/IOSystem.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/Importer.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/Hash.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/GenericProperty.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/Common/BaseProcess.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/postprocess.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/SpatialSort.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/irrXMLWrapper.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/PostProcessing/ProcessHelper.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/DefaultIOSystem.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/SceneCombiner.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/Exporter.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/cexport.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/X3D/FIReader.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/qnan.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/MemoryIOWrapper.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/PostProcessing/ConvertToLHProcess.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/X3D/X3DImporter.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/X3D/X3DImporter_Node.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/Importer/IFC/IFCReaderGen_2x3.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/FBX/FBXImporter.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/FBX/FBXImportSettings.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/FBX/FBXUtil.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${incdir}/version.h>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/X3D/X3DImporter_Macro.hpp>
+    $<$<COMPILE_LANGUAGE:CXX>:${codedir}/Common/Importer.h>
+)
+
 # debug
 #ivw_print_targets_in_dir_recursive(${CMAKE_CURRENT_SOURCE_DIR})

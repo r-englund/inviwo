@@ -779,6 +779,28 @@ target_link_libraries(inviwo-core
 #Optimize compiliation with PCH etc
 ivw_compile_optimize_on_target(inviwo-core)
 
+ivw_target_precompile_headers(inviwo-core PRIVATE 
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/serialization/serializer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/property.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glm.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/valuewrapper.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/stdextensions.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glmvec.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/stringconversion.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/serialization/serializebase.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwoapplication.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/exception.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/datainport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/network/processornetwork.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwomodule.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/network/networkutils.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/volume/volume.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/processor.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/imageport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/optionproperty.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/transferfunctionproperty.h
+)
+
 # Make package (for other projects to find)
 ivw_default_install_targets(inviwo-core)
 ivw_make_package(InviwoCore inviwo-core)

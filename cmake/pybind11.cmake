@@ -36,6 +36,7 @@ set(_allPyBindWrappers "" CACHE INTERNAL  "")
 function (ivw_add_py_wrapper target)
     if(IVW_MODULE_PYTHON3)
         pybind11_add_module(${target} ${ARGN})
+
         set_target_properties(${target} PROPERTIES DEBUG_POSTFIX "")
         set_target_properties(${target} PROPERTIES PREFIX "")
         set_target_properties(${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

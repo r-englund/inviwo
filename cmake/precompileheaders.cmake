@@ -30,7 +30,7 @@
 
 
 if(WIN32)
-    option(IVW_CFG_PRECOMPILED_HEADERS "Create and use precompilied headers" ON)
+    option(IVW_CFG_PRECOMPILED_HEADERS "Create and use precompilied headers" OFF)
     option(IVW_CFG_PRECOMPILED_HEADERS_NEW "Create and use precompilied headers" ON)
 else()
     option(IVW_CFG_PRECOMPILED_HEADERS "Create and use precompilied headers" OFF)

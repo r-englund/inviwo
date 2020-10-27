@@ -201,6 +201,18 @@ ivw_create_module(NO_PCH ${SOURCE_FILES} ${MOCED_FILES} ${QRC_FILE} ${HEADER_FIL
 )
 target_link_libraries(inviwo-module-qtwidgets PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg)
 
+ivw_target_precompile_headers(inviwo-module-qtwidgets PRIVATE 
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glm.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwo.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/serialization/serializer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/property.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glmvec.h
+
+
+    <QWidget>
+    <QString>
+)
+
 ivw_compile_optimize_on_target(inviwo-module-qtwidgets)
 
 ivw_make_package(InviwoQtWidgetsModule inviwo-module-qtwidgets)

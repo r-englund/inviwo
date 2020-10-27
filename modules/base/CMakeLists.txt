@@ -258,3 +258,44 @@ ivw_create_module(${SOURCE_FILES} ${MOC_FILES} ${HEADER_FILES})
 if(IVW_TEST_BENCHMARKS)
     add_subdirectory(tests/benchmarks)
 endif()
+
+
+ivw_target_precompile_headers(inviwo-module-base PRIVATE 
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwo.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glm.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/processor.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/property.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/stdextensions.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/volume/volume.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/datainport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/data.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/network/networkutils.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/network/processornetwork.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/geometry/mesh.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/ordinalproperty.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/volumeport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/imageport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/representationconverterfactory.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwoapplication.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/ports/meshport.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/image/layer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/optionproperty.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/image/image.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/buffer/buffer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/spatialdata.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/representationfactorymanager.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/links/linkevaluator.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/fileextension.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/coordinatetransformer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/datareader.h
+    ${IVW_EXTENSIONS_DIR}/fmt/fmt/include/fmt/format.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/poolprocessor.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/cameraproperty.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/modulemanager.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/histogramtools.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/datawriter.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/representationmetafactory.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/camera.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/camera/camera.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/datastructures/volume/volumeram.h
+)

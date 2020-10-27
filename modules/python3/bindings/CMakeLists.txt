@@ -57,4 +57,24 @@ ivw_add_py_wrapper(inviwopy ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(inviwopy PUBLIC inviwo::core inviwo::module::python3)
 target_include_directories(inviwopy PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+ivw_target_precompile_headers(inviwopy PRIVATE 
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwo.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/common/inviwoapplication.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glm.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/processor.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/property.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/processorobserver.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/glmvec.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/properties/valuewrapper.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/processors/canvasprocessor.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/io/serialization/serializer.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/formats.h
+    ${IVW_INCLUDE_DIR}/inviwo/core/util/settings/settings.h
+
+    <pybind11/pybind11.h>
+    <pybind11/stl.h>
+    <pybind11/functional.h>
+
+)
+
 ivw_default_install_targets(inviwopy)
