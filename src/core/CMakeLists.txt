@@ -721,6 +721,11 @@ add_library(inviwo-core
 )
 add_library(inviwo::core ALIAS inviwo-core)
 
+set(PCH_HEADERS ${HEADER_FILES})
+# Should not include the following file in PCH or we will get multiple definitions of NvOptimusEnablement and AmdPowerXpressRequestHighPerformance
+list(REMOVE_ITEM PCH_HEADERS "${IVW_INCLUDE_DIR}/inviwo/core/common/defaulttohighperformancegpu.h")
+target_precompile_headers(inviwo-core PRIVATE ${PCH_HEADERS})
+
 # Define standard defintions
 ivw_define_standard_definitions(inviwo-core inviwo-core)
 ivw_define_standard_properties(inviwo-core)

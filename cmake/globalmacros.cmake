@@ -524,6 +524,10 @@ function(ivw_create_module)
     ivw_define_standard_definitions(${${mod}_opt} ${${mod}_target})
     ivw_define_standard_properties(${${mod}_target})
 
+        if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/pch.h)
+            ivw_target_precompile_headers(${${mod}_target} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/pch.h)
+        endif()
+
     # Add dependencies from depends.cmake and InviwoCore
     ivw_mod_name_to_alias(ivw_dep_targets ${${mod}_dependencies})
     target_link_libraries(${${mod}_target} PUBLIC ${ivw_dep_targets})
